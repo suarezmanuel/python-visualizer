@@ -104,6 +104,34 @@ def get_file_imports(file_name):
     return imports
 
 def build_adjacency_list(folder_path) -> dict[str, list[ImportType]]:
+
+    # first a dictionary that matches paths to Module's is created, fills each Module's name, path
+    # then create a tree; a root Module that represents the project, fill each node's children
+    # then pass the tree in post-order, and fill the imports to be SourceModules; the modules with the definition, they might have is_local=False
+    # EXTRA: fill a queue with imports to be deciphered, and then create a dictionary that will match those imports with their aliases
+    # 
+    # 
+    # Module: name, path, is_local, imports, children
+    #
+    # create all Modules without imports, fill name, path.
+    # scan again, fill is_local, imports, children if is a folder scan for __init__.py
+    #
+    # from .a.b.c.d import e
+    # convert '.a.b.c.d' into a path, link the module
+    #
+    # from X import Y
+    #
+    # Module -> SourceModule
+    #
+    # we want the most direct connection, look inside modules[X], and find who imports Y, or Z as Y until no more imports. 
+    # find_origin(start_module: Module, import: str, path_taken: list[Module])
+    # if start_module in path_taken: print('circular import detected'); exit(1)
+    #
+    #
+    #
+    # later on, check if Y in from X import Y as Z, is an object or not.
+    #  
+
     leaves = get_leaves(folder_path, FULL_PATHS=True)
     modules_dict: dict[str, list[ImportType]] = {}
     for l in leaves:
