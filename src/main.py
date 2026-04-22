@@ -3,6 +3,7 @@ from iterators import TreeAbstractIterator
 from dataclasses import dataclass, field
 import re
 import graphviz
+from a import o
 
 def tree(folder_path, **kwargs):
     if folder_path == "":
@@ -93,7 +94,6 @@ def get_file_imports(file_name):
                         sub_match = re.search(Y_AS_Z, sub_module)
                         if not sub_match and ' as ' in sub_module:
                             continue
-                        
                         if sub_match:
                             sub_module = sub_match.group(1)
                             alias = sub_match.group(2)
@@ -117,31 +117,84 @@ def build_adjacency_list(folder_path) -> dict[str, list[ImportType]]:
                     modules_dict[imp.module_name] = []
     return modules_dict
 
-def create_graph(folder_path):
+class ImportsGraph:
 
-    modules_dict: dict[str, list[ImportType]] = build_adjacency_list(folder_path)
+    LIBS_NOT_TO_INCLUDE: list[str] = ["typing"]
+    GRAPH_NAME = 'my_graph'
+    FILE_NAME = 'graph.gv'
+    ENGINE = 'sfdp'
+    GRAPH_ATTRIBUTES = {
+        'overlap': 'false', 
+        'fontname': 'Helvetica', 
+        'fontsize': '20', 
+        'outputorder': "edgesfirst", 
+        'concentrate': "true"
+    }
+    NODE_ATTR = {
+        'shape': 'box', 
+        'style': 'rounded,filled', 
+        'fontsize': '16'
+    }
+    LIB_NODE_COLOR = 'lightblue'
+    MODULE_NODE_COLOR = 'orange'
 
-    f = graphviz.Digraph('my_graph', filename='fsm.gv', engine='sfdp')
+    def __init__(self, folder_path: str):
+        self._create_graph(folder_path)
 
-    f.attr(
-        overlap='false', # Crucial: prevents nodes from sitting on top of each other
-        fontname='Helvetica',
-        fontsize='20',    # Bigger labels for a bigger graph
-        outputorder="edgesfirst",
-        concentrate="true"
-    )
+    def _create_graph(self, folder_path):
+        modules_dict: dict[str, list[ImportType]] = build_adjacency_list(folder_path)
+        # TODO: make an adjacency list cleaner, in case of a local file importing an alias from another local file. 
+        
+        orphan_modules = []
+        for module_name in modules_dict.keys():
+            is_orphan = True
+            for imp in modules_dict[module_name]:
+                if imp.module_name not in self.LIBS_NOT_TO_INCLUDE and imp.module_alias not in self.LIBS_NOT_TO_INCLUDE and imp.sub_module not in self.LIBS_NOT_TO_INCLUDE and imp.sub_module_alias not in self.LIBS_NOT_TO_INCLUDE:
+                    is_orphan = False
+            for other_module_name in modules_dict.keys():
+                for imp in modules_dict[other_module_name]:
+                    if module_name == imp.module_name or module_name == imp.module_alias or module_name == imp.sub_module or module_name == imp.sub_module_alias:
+                        is_orphan = False
+            if is_orphan == True:
+                orphan_modules.append(module_name)
 
-    f.attr('node', shape='box', style='rounded,filled', fillcolor='lightblue', fontsize='16')
+                
+        used_names = [module_name for module_name in orphan_modules]
+        libs = [module_name for module_name in modules_dict.keys() if module_name not in used_names and '.py' not in module_name]
+        used_names += [module_name for module_name in libs]
+        project_modules = [module_name for module_name in modules_dict.keys() if module_name not in used_names and '.py' in module_name]
+        used_names += [module_name for module_name in project_modules]
+        assert len(used_names) == len(modules_dict) 
+        f = graphviz.Digraph(self.GRAPH_NAME, filename=self.FILE_NAME, engine=self.ENGINE)
 
-    for module_name in modules_dict.keys():
-        f.node(module_name)
+        f.attr(**self.GRAPH_ATTRIBUTES)
 
-    for module_name in modules_dict.keys():
-        for imp in modules_dict[module_name]:
-            f.edge(module_name, imp.module_name)
+        
+        # f.attr('node', fillcolor=self.LIB_NODE_COLOR, **self.NODE_ATTR)
+        f.node('orphan_anchor', style='invis', label='', width='0')
+        for module_name in orphan_modules:
+            f.node(module_name)
+            f.edge('orphan_anchor', module_name)
 
-    f.view()
+        f.attr('node', fillcolor=self.LIB_NODE_COLOR, **self.NODE_ATTR)
+        for lib_name in libs:
+            if lib_name in self.LIBS_NOT_TO_INCLUDE: continue
+            f.node(lib_name)
+
+        f.attr('node', fillcolor=self.MODULE_NODE_COLOR, **self.NODE_ATTR)
+        for module_name in project_modules:
+            f.node(module_name)
+
+        for imp_a_module_name in modules_dict.keys():
+            for imp_b in modules_dict[imp_a_module_name]:
+                if imp_b.module_name in self.LIBS_NOT_TO_INCLUDE: continue
+                if imp_a_module_name in project_modules:
+                    if module_name in project_modules or module_name in libs:
+                        f.edge(imp_a_module_name, imp_b.module_name)
+
+        f.view()
+
 
 # tree("/Users/manuel/Code/minecraft", RECURSE_HIDDEN=True)
-create_graph("/Users/manuel/Code/visualizer/lib/python3.13/site-packages/pip")
+ImportsGraph("C:/Users/manue/Documents/Code/python-visualizer/pyAGE")
 # print(get_leaves("/Users/manuel/Code/visualizer", MAX_DEPTH=0, FULL_PATHS=False))
