@@ -1,4 +1,7 @@
-import datetime as dt
+import os as should_be_lib
+import c as should_be_module
 
-def hello():
+def should_be_function():
     print("hello")
+
+should_be_variable = 1
