@@ -1,0 +1,3 @@
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_4\a\b\c, root: a.py
+	LibImport <module: b, imp: hello>
+>

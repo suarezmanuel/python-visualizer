@@ -1,0 +1,6 @@
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_6, root: a.py
+	ModuleImport <module: b, imp: hello>
+>
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_6\b, root: __init__.py
+	ModuleImport <module: c, imp: hello>
+>

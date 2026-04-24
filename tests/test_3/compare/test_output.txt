@@ -1,0 +1,16 @@
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_3, root: a.py
+	ModuleImport <module: b, imp: should_be_function>
+	ModuleImport <module: b, imp: should_be_lib>
+>
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_3, root: a.py
+	ModuleImport <module: b, imp: should_be_lib>
+>
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_3, root: a.py
+	ModuleImport <module: b, imp: should_be_variable>
+>
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_3, root: a.py
+	ModuleImport <module: b, imp: should_be_module>
+>
+ImportFrom <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_3, root: a.py
+	LibImport <module: os, imp: *>
+>

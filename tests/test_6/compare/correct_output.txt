@@ -1,0 +1,6 @@
+ImportFrom< 
+	ModuleImport <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_6, module: b, imp: hello>
+>
+ImportFrom< 
+	ModuleImport <folder: C:\Users\manue\Documents\Code\python-visualizer\tests\test_6\b, module: c, imp: hello>
+>
