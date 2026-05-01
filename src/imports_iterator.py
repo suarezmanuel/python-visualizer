@@ -1,5 +1,4 @@
 from typing import Iterator
-from dataclasses import dataclass
 
 import astroid
 from astroid import nodes
