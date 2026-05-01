@@ -1,9 +1,10 @@
-from src.imports.utils import iterate_resolve_over_directory
+from src.utils import build_dir_imports, generate_nodes
 
 
 def main():
     """Entry point of the script"""
-    iterate_resolve_over_directory("tests")
+    # resolve_dir_imports("tests")
+    generate_nodes("tests")
 
 
 if __name__ == "__main__":

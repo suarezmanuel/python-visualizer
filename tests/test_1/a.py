@@ -1,1 +1,1 @@
-from .b import hello
+from tests.test_1.b import hello
